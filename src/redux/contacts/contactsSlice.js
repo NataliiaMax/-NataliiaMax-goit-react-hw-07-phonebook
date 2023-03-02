@@ -1,35 +1,58 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { nanoid } from 'nanoid';
+import {
+  fetchContacts,
+  addContact,
+  deleteContact,
+} from './contacts-operations';
 
 const initialState = {
   contacts: {
     items: [],
     isLoading: false,
-    error: null
+    error: null,
   },
-  }
+};
 
 const contactsSlice = createSlice({
   name: 'contacts',
   initialState,
-  reducers: {
-    addContact: {
-      reducer: (state, action) => {
-        state.push(action.payload);
-      },
-      prepare: data => {
-        return {
-          payload: {
-            id: nanoid(),
-            ...data,
-          },
-        };
-      },
-    },
-    deleteContact: (state, action) =>
-      state.filter(({ id }) => id !== action.payload),
+  extraReducers: builder => {
+    builder
+      .addCase(fetchContacts.pending, store => {
+        store.loading = true;
+      })
+      .addCase(fetchContacts.fulfilled, (store, { payload }) => {
+        store.loading = false;
+        store.items = payload;
+      })
+      .addCase(fetchContacts.rejected, (store, { payload }) => {
+        store.loading = false;
+        store.error = payload;
+      })
+      .addCase(addContact.pending, store => {
+        store.loading = true;
+      })
+      .addCase(addContact.fulfilled, (store, { payload }) => {
+        store.loading = false;
+        store.items.push(payload);
+      })
+      .addCase(addContact.rejected, (store, { payload }) => {
+        store.loading = false;
+        store.error = payload;
+      })
+      .addCase(deleteContact.pending, store => {
+        store.loading = true;
+      })
+      .addCase(deleteContact.fulfilled, (store, { payload }) => {
+        store.loading = false;
+        const index = store.items.findIndex(item => item.id === payload);
+        store.items.splice(index, 1);
+      })
+      .addCase(deleteContact.rejected, (store, { payload }) => {
+        store.loading = false;
+        store.error = payload;
+      });
   },
 });
 
-export const { addContact, deleteContact } = contactsSlice.actions;
 export default contactsSlice.reducer;
