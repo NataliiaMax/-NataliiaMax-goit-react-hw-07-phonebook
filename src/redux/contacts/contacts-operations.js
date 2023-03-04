@@ -2,7 +2,7 @@ import * as api from '../../services/contacts';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchContacts = createAsyncThunk(
-  'contacts/fetch-contacts',
+  'contacts/fetchAll',
   async (_, thunkAPI) => {
     try {
       const data = await api.fetchContacts();
@@ -14,40 +14,23 @@ export const fetchContacts = createAsyncThunk(
 );
 
 export const addContact = createAsyncThunk(
-  'contacts/add',
-  async (data, { rejectWithValue }) => {
+  'contacts/addContact',
+  async ({ name, phone }, { rejectWithValue }) => {
     try {
-      const result = await api.addContact(data);
+      const result = await api.addContact({ name, phone });
       return result;
     } catch ({ response }) {
       return rejectWithValue(response.data);
     }
-  },
-  {
-    condition: ({ name,number }, { getState }) => {
-      const { contacts} = getState();
-      const normalizedName = name.toLowerCase();
-      const normalizedNumber = number.toLowerCase();
-      const result = contacts.items.find(({ name, number }) => {
-        return (
-          name.toLowerCase() === normalizedName &&
-          number.toLowerCase() === normalizedNumber
-        );
-      });
-      if (result) {
-        alert(`${name} is already ixist`);
-        return false;
-      }
-    },
   }
 );
 
 export const deleteContact = createAsyncThunk(
-  'contacts/delete',
+  'contacts/deleteContact',
   async (id, { rejectWithValue }) => {
     try {
-      await api.deleteContact(id);
-      return id;
+      const result = await api.deleteContact(id);
+      return result;
     } catch ({ response }) {
       return rejectWithValue(response.data);
     }

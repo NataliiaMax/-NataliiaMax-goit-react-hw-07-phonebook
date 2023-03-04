@@ -7,7 +7,7 @@ import {
 
 const initialState = {
   contacts: {
-    items: [],
+    contacts: [],
     isLoading: false,
     error: null,
   },
@@ -18,39 +18,45 @@ const contactsSlice = createSlice({
   initialState,
   extraReducers: builder => {
     builder
-      .addCase(fetchContacts.pending, store => {
-        store.loading = true;
+      .addCase(fetchContacts.pending, (state, { payload }) => {
+        return { ...state, isLoading: true };
       })
-      .addCase(fetchContacts.fulfilled, (store, { payload }) => {
-        store.loading = false;
-        store.items = payload;
+      .addCase(fetchContacts.fulfilled, (state, { payload }) => {
+        return {
+          ...state,
+          isLoading: false,
+          error: null,
+          contacts: payload,
+        };
       })
-      .addCase(fetchContacts.rejected, (store, { payload }) => {
-        store.loading = false;
-        store.error = payload;
+      .addCase(fetchContacts.rejected, (state, { payload }) => {
+        return { ...state, isLoading: false, error: payload };
       })
-      .addCase(addContact.pending, store => {
-        store.loading = true;
+      .addCase(addContact.pending, (state, { payload }) => {
+        return { ...state, isLoading: true };
       })
-      .addCase(addContact.fulfilled, (store, { payload }) => {
-        store.loading = false;
-        store.items.push(payload);
+      .addCase(addContact.fulfilled, (state, { payload }) => {
+        return {
+          isLoading: false,
+          error: null,
+          contacts: [...state.contacts, payload],
+        };
       })
-      .addCase(addContact.rejected, (store, { payload }) => {
-        store.loading = false;
-        store.error = payload;
+      .addCase(addContact.rejected, (state, { payload }) => {
+        return { ...state, isLoading: false, error: payload };
       })
-      .addCase(deleteContact.pending, store => {
-        store.loading = true;
+      .addCase(deleteContact.pending, (state, { payload }) => {
+        return { ...state, isLoading: true };
       })
-      .addCase(deleteContact.fulfilled, (store, { payload }) => {
-        store.loading = false;
-        const index = store.items.findIndex(item => item.id === payload);
-        store.items.splice(index, 1);
+      .addCase(deleteContact.fulfilled, (state, { payload }) => {
+        return {
+          isLoading: false,
+          error: null,
+          contacts: state.contacts.filter(contact => contact.id !== payload.id),
+        };
       })
-      .addCase(deleteContact.rejected, (store, { payload }) => {
-        store.loading = false;
-        store.error = payload;
+      .addCase(deleteContact.rejected, (state, { payload }) => {
+        return { ...state, isLoading: false, error: payload };
       });
   },
 });
